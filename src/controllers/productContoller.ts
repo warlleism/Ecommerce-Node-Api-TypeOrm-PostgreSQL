@@ -7,27 +7,20 @@ import fs from 'fs';
 export class ProductController {
 
     async create(req: Request, res: Response) {
-        const { name, image, description, price, rate } = req.body;
+        const { name, image, description, price, rate, category } = req.body;
 
-        if (!name || !image || !description || !price || !rate) {
-            throw new UnauthorizedError("Os dados precisam ser preenchidos");
-        }
+        if (!name || !image || !description || !price || !rate || !category) { throw new UnauthorizedError("Data needs to be filled in") }
 
         const productExists = await productRepository.findOneBy({ name });
 
-        if (productExists) {
-            throw new UnauthorizedError('Produto já existe');
-        }
+        if (productExists) { throw new UnauthorizedError('Product already exists') }
 
         const filename = `${name}.png`;
-        console.log(filename)
         let imagePath;
 
         imagePath = await saveImageToFile(image, filename);
 
-        if (!imagePath) {
-            throw new Base64Error('Falha ao salvar a imagem');
-        }
+        if (!imagePath) { throw new Base64Error('Failed to save image') }
 
         const newUser = productRepository.create({
             name,
@@ -35,19 +28,18 @@ export class ProductController {
             description,
             price,
             rate,
+            category
         });
 
         await productRepository.save(newUser);
         const { ...user } = newUser;
-        return res.status(200).json({ message: "Produto cadastrado com sucesso", data: user });
+        return res.status(200).json({ message: "Product registered successfully", data: user });
     }
 
-    public async getAll(req: Request, res: Response) {
+    async getAll(req: Request, res: Response) {
         const products = await productRepository.find();
 
-        if (!products) {
-            throw new BadRequestError('Products not found!');
-        }
+        if (!products) { throw new BadRequestError('Products not found!') }
 
         if (products.length > 0) {
             const allProducts = [];
@@ -60,51 +52,60 @@ export class ProductController {
         } else {
             return res.status(404).json({ message: "No products found." });
         }
-
     }
 
-    public async getOne(req: Request, res: Response) {
+    async getOne(req: Request, res: Response) {
         const { id } = req.body
 
-        if (!id) {
-            throw new BadRequestError('Product ID required')
-        }
+        if (!id) { throw new BadRequestError('Product ID required') }
 
         const product = await productRepository.findOneBy({ id: id })
 
-        if (!product) {
-            throw new BadRequestError('Product not found.');
-        }
+        if (!product) { throw new BadRequestError('Product not found.') }
 
         const imagePath = product.image;
         fs.readFile(imagePath, { encoding: 'base64' }, (err, data) => {
             if (err) throw err;
-            return res.status(200).json({ message: "Product found!", data: { ...product, image: data } });
+            return res.status(200).json({ message: "Product found!", data: { ...product, image: data } })
         });
     }
 
-    public async delete(req: Request, res: Response) {
+    async delete(req: Request, res: Response) {
         const { id } = req.body;
 
-        if (!id) {
-            throw new BadRequestError('Product ID required');
-        }
+        if (!id) { throw new BadRequestError('Product ID required') }
 
         const productImage = await productRepository.findOneBy({ id: id });
 
-        if (productImage?.name) {
-            await deleteImage(productImage.name);
-        } else {
-            throw new BadRequestError('Fail to delete image.');
-        }
+        if (productImage?.name) { await deleteImage(productImage.name) }
+        else { throw new BadRequestError('Fail to delete image.') }
 
         const product = await productRepository.delete({ id: id });
 
-        if (!product) {
-            throw new BadRequestError('Product not found.');
-        }
+        if (!product) { throw new BadRequestError('Product not found.') }
 
-        res.status(200).send('Product and image deleted successfully.');
+        res.status(200).json({ massage: 'Product and image deleted successfully.' });
+    }
+
+    async update(req: Request, res: Response) {
+        const { id, name, image, description, price, rate, category } = req.body;
+
+        if (!name || !image || !description || !price || !rate || !category) { throw new UnauthorizedError("Data needs to be filled in") }
+
+        const product = await productRepository.findOneBy({ id: id });
+
+        if (!product) { throw new BadRequestError('Product not found.') }
+
+        product.category
+        product.description
+        product.image
+        product.name
+        product.price
+        product.rate
+
+        await productRepository.save(product);
+
+        res.status(200).json({ massage: 'product has been updated successfully' });
     }
 
 

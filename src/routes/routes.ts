@@ -7,10 +7,11 @@ const routes = Router()
 routes.post('/register-user', new UserController().create)
 routes.post('/login-user', new UserController().login)
 
-routes.post('/create-product', authMiddleware, new ProductController().create)
-routes.get('/get-all', authMiddleware, new ProductController().getAll)
-routes.post('/get-one', authMiddleware, new ProductController().getOne)
-routes.post('/delete-product', authMiddleware, new ProductController().delete)
+routes.post('/product/create', authMiddleware, new ProductController().create)
+routes.get('/product/get', authMiddleware, new ProductController().getAll)
+routes.post('/product/all', authMiddleware, new ProductController().getOne)
+routes.delete('/product/delete', authMiddleware, new ProductController().delete)
+routes.put('/product/update', authMiddleware, new ProductController().update)
 
 
 export default routes;

@@ -24,6 +24,9 @@ export class Product {
     @Column({ type: 'text' })
     rate: number
 
+    @Column({ type: 'text' })
+    category: string
+
 
 
 }

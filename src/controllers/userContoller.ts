@@ -9,15 +9,11 @@ export class UserController {
     async create(req: Request, res: Response) {
         const { email, password } = req.body
 
-        if (!email || !password) {
-            throw new UnauthorizedError("Os dados precisam ser preenchidos")
-        }
+        if (!email || !password) { throw new UnauthorizedError("Os dados precisam ser preenchidos") }
 
         const userExists = await userRepository.findOneBy({ email })
 
-        if (userExists) {
-            throw new UnauthorizedError('E-mail já existe')
-        }
+        if (userExists) { throw new UnauthorizedError('E-mail já existe') }
 
         const hashPassword = await bcrypt.hash(password, 10)
         const newUser = userRepository.create({ email: email, password: hashPassword })
@@ -29,27 +25,18 @@ export class UserController {
 
     async login(req: Request, res: Response) {
         const { email, password } = req.body
-        if (!email || !password) {
-            return res.status(400).json({ message: "Os dados precisam ser preenchidos" })
-        }
+
+        if (!email || !password) { return res.status(400).json({ message: "Os dados precisam ser preenchidos" }) }
 
         const user = await userRepository.findOneBy({ email })
 
-
-        if (!user) {
-            throw new BadRequestError('E-mail ou senha inválidos')
-        }
+        if (!user) { throw new BadRequestError('E-mail ou senha inválidos') }
 
         const verifyPass = await bcrypt.compare(password, user.password)
 
+        if (!verifyPass) { throw new BadRequestError('E-mail ou senha inválidos') }
 
-        if (!verifyPass) {
-            throw new BadRequestError('E-mail ou senha inválidos')
-        }
-
-        const token = jwt.sign({ id: user.id }, process.env.JWT_PASS ?? '', {
-            expiresIn: '8h',
-            })
+        const token = jwt.sign({ id: user.id }, process.env.JWT_PASS ?? '', { expiresIn: '8h', })
 
         const { password: _, ...userLogin } = user
 
