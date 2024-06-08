@@ -20,17 +20,17 @@ export const authMiddleware = async (
 
 	const token = authorization.split(' ')[1]
 
-	const { id } = jwt.verify(token, process.env.JWT_PASS ?? '') as JwtPayload
-
-	const user = await userRepository.findOneBy({ id })
-
-	if (!user) {
-		throw new UnauthorizedError('Não autorizado')
+	try {
+		const { id } = jwt.verify(token, process.env.JWT_PASS ?? '') as JwtPayload
+		const user = await userRepository.findOneBy({ id })
+		if (!user) { return }
+		const { password: _, ...loggedUser } = user
+		req.user = loggedUser
+		next()
+	} catch (error) {
+		throw new UnauthorizedError('Token não autorizado')
 	}
 
-	const { password: _, ...loggedUser } = user
 
-	req.user = loggedUser
 
-	next()
 }

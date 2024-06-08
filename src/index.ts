@@ -16,4 +16,3 @@ AppDataSource.initialize().then(() => {
 
     return app.listen(process.env.PORT)
 })
-
