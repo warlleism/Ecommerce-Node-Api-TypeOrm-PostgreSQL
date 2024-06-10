@@ -27,8 +27,6 @@ export class ProductController {
 
         imagePath = await saveImageToFile(image, filename);
 
-        if (!imagePath) { throw new Base64Error('Failed to save image') }
-
         const newUser = productRepository.create({
             name,
             image: imagePath,
