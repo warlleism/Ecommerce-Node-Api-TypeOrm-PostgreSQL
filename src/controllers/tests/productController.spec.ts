@@ -3,6 +3,9 @@ import { productRepository } from "../../repositories/productRepository";
 import { Request, Response } from "express";
 import { Base64Error, UnauthorizedError } from "../../helpers/api-erros";
 import { saveImageToFile } from "../../utils/fileUtils";
+import path from "path";
+import fs from 'fs';
+
 
 jest.mock('../../repositories/favoriteRepository');
 jest.mock('bcrypt');
@@ -65,7 +68,7 @@ describe('ProductController', () => {
             category: 'Test category'
         };
 
-        
+
         productRepository.findOneBy = jest.fn().mockResolvedValueOnce(null);
 
         (saveImageToFile as jest.Mock).mockImplementationOnce(() => {
@@ -81,7 +84,7 @@ describe('ProductController', () => {
 
     it('should create a new product and return status 200 with product data', async () => {
         req.body = {
-            name: 'Test Product',
+            name: 'TestProduct',
             image: 'SGVsbG8sIHdvcmxkIQ==',
             description: 'Test description',
             price: 10,
@@ -91,13 +94,18 @@ describe('ProductController', () => {
 
         productRepository.findOneBy = jest.fn().mockResolvedValueOnce(null);
 
-        const newUser = { ...req.body };
+        const savedImagePath = `C:\\Users\\warll\\OneDrive\\Área de Trabalho\\Ecommerce-Node-Api-TypeOrm-PostgreSQL\\src\\controllers\\images\\TestProduct.png`;
+        (saveImageToFile as jest.Mock).mockResolvedValueOnce(savedImagePath);
+        const result = await saveImageToFile(req.body.image, req.body.name);
+        expect(result).toContain(path.join(__dirname, '..', 'images', req.body.name));
+
+        const newUser = { ...req.body, image: savedImagePath };
         productRepository.create = jest.fn().mockReturnValueOnce(newUser);
         productRepository.save = jest.fn().mockResolvedValueOnce(newUser);
+
         await productController.create(req as Request, res as Response);
+
         expect(statusMock).toHaveBeenCalledWith(200);
         expect(jsonMock).toHaveBeenCalledWith({ message: 'Product registered successfully', data: newUser });
-
     });
-
 });
