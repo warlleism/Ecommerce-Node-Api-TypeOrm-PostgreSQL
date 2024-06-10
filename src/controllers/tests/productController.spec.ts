@@ -2,9 +2,11 @@ import { ProductController } from "../productController";
 import { productRepository } from "../../repositories/productRepository";
 import { Request, Response } from "express";
 import { Base64Error, UnauthorizedError } from "../../helpers/api-erros";
+import { saveImageToFile } from "../../utils/fileUtils";
 
 jest.mock('../../repositories/favoriteRepository');
 jest.mock('bcrypt');
+jest.mock('../../utils/fileUtils');
 
 describe('ProductController', () => {
     let productController: ProductController;
@@ -56,14 +58,19 @@ describe('ProductController', () => {
     it('should throw a Base64Error if failed to save image', async () => {
         req.body = {
             name: 'Test Product',
-            image: 'imageNoBase64Test',
+            image: 'NotBase64',
             description: 'Test description',
             price: 10,
             rate: 5,
             category: 'Test category'
         };
 
+        
         productRepository.findOneBy = jest.fn().mockResolvedValueOnce(null);
+
+        (saveImageToFile as jest.Mock).mockImplementationOnce(() => {
+            throw new Base64Error('Arquivo não é um base64.');
+        });
 
         await expect(productController.create(req as Request, res as Response))
             .rejects
