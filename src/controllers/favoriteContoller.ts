@@ -25,22 +25,5 @@ export class FavoriteController {
 
         return res.status(200).json({ message: "Successfully favorited product", data: favorite })
     }
-
-    async get(req: Request, res: Response) {
-
-        const { user_id } = req.body
-        if (!user_id) { throw new UnauthorizedError("The data needs to be filled in.") }
-
-        const userExists = await userRepository.findOneBy({ id: user_id })
-        if (!userExists) { throw new UnauthorizedError("User does not exist.") }
-
-        const favoriteExists = await favoriteRepository.findBy({ user_id: user_id })
-        if (favoriteExists.length === 0) { throw new UnauthorizedError("No favorite products.") }
-
-        const productArray: number[] = [];
-        const productMap = favoriteExists.map((e) => { productArray.push(e.product_id) });
-
-        return res.status(200).json({ message: "List of favorite products", data: productArray })
-    }
     
 }

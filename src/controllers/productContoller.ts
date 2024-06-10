@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import { productRepository } from "../repositories/productRepository";
 import { BadRequestError, Base64Error, UnauthorizedError } from "../helpers/api-erros";
 import { deleteImage, saveImageToFile } from "../utils/fileUtils";
+import { favoriteRepository } from "../repositories/favoriteRepository";
+import { JwtPayload } from "jsonwebtoken";
+import jwt from 'jsonwebtoken'
 import fs from 'fs';
 
 export class ProductController {
@@ -41,25 +44,33 @@ export class ProductController {
     }
 
     async getAll(req: Request, res: Response) {
+
+        const { authorization } = req.headers
+
+        if (!authorization) {
+            throw new UnauthorizedError('Não autorizado')
+        }
+
+        const token = authorization.split(' ')[1]
+        const { id } = jwt.verify(token, process.env.JWT_PASS ?? '') as JwtPayload
+        const favoriteExists = await favoriteRepository.findBy({ user_id: id })
+        const productArray: number[] = [];
+        const productMap = favoriteExists.map((e) => { productArray.push(e.product_id) });
         const products = await productRepository.find();
 
-        if (!products) {
-            throw new BadRequestError('Products not found!')
-        }
-
-        if (products.length > 0) {
-            const allProducts = [];
-            for (const product of products) {
-                const imagePath = product.image;
-                const data = fs.readFileSync(imagePath, { encoding: 'base64' });
-                allProducts.push({ ...product, image: data });
-            }
-            return res.status(200).json({ message: "All products with images!", data: allProducts });
-        } else {
+        if (!products || products.length === 0) {
             return res.status(404).json({ message: "No products found." });
         }
-    }
 
+        const allProducts = await Promise.all(products.map(async product => {
+            const imagePath = product.image;
+            const data = await fs.promises.readFile(imagePath, 'base64');
+            return { ...product, image: data };
+        }));
+
+        return res.status(200).json({ message: "All products with images!", data: allProducts, favorites: productArray });
+
+    }
     async getOne(req: Request, res: Response) {
 
         const { id } = req.body

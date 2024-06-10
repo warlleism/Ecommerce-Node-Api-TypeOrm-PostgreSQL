@@ -35,9 +35,9 @@ export class UserController {
         const verifyPass = await bcrypt.compare(password, user.password)
 
         if (!verifyPass) { throw new BadRequestError('E-mail ou senha inválidos') }
-
+        
         const token = jwt.sign({ id: user.id }, process.env.JWT_PASS ?? '', { expiresIn: '8h', })
-
+        
         const { password: _, ...userLogin } = user
 
         return res.json({

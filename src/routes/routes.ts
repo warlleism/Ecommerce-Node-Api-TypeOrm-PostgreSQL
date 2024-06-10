@@ -6,7 +6,7 @@ import { FavoriteController } from "../controllers/favoriteContoller";
 const routes = Router()
 
 routes.post('/user/register', new UserController().create)
-routes.post('/login', new UserController().login)
+routes.post('/user/login', new UserController().login)
 
 routes.post('/product/create', authMiddleware, new ProductController().create)
 routes.get('/product/all', authMiddleware, new ProductController().getAll)
@@ -16,7 +16,6 @@ routes.put('/product/update', authMiddleware, new ProductController().update)
 routes.post('/product/search', authMiddleware, new ProductController().getSearch)
 
 routes.post('/favorite/create', authMiddleware, new FavoriteController().create)
-routes.post('/favorite/all', authMiddleware, new FavoriteController().get)
 
 
 export default routes;

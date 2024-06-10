@@ -28,29 +28,6 @@ describe('UserController', () => {
         jest.clearAllMocks();
     });
 
-    it('should create a new user if valid email and password are provided', async () => {
-        const mockEmail = 'test@test.com';
-        const mockPassword = 'password';
-        const mockHashedPassword = 'hashedPassword';
-        const mockNewUser = { email: mockEmail, password: mockHashedPassword };
-        const mockSavedUser = { ...mockNewUser, id: 1 };
-
-        (bcrypt.hash as jest.Mock).mockResolvedValue(mockHashedPassword);
-        (userRepository.findOneBy as jest.Mock).mockResolvedValue(null);
-        (userRepository.create as jest.Mock).mockReturnValue(mockSavedUser);
-
-        req.body = { email: mockEmail, password: mockPassword };
-
-        await userController.create(req as Request, res as Response);
-
-        expect(bcrypt.hash).toHaveBeenCalledWith(mockPassword, 10);
-        expect(userRepository.findOneBy).toHaveBeenCalledWith({ email: mockEmail });
-        expect(userRepository.create).toHaveBeenCalledWith({ email: mockEmail, password: mockHashedPassword });
-        expect(userRepository.save).toHaveBeenCalledWith(mockSavedUser);
-        expect(statusMock).toHaveBeenCalledWith(200);
-        expect(jsonMock).toHaveBeenCalledWith({ message: "Usuário cadastrado com sucesso", data: { email: mockEmail, id: 1 } });
-    });
-
     it('should throw an UnauthorizedError if email or password is not provided', async () => {
         req.body = {};
 
@@ -84,4 +61,29 @@ describe('UserController', () => {
 
         expect(userRepository.findOneBy).toHaveBeenCalledWith({ email: mockEmail });
     });
+
+    it('should create a new user if valid email and password are provided', async () => {
+        const mockEmail = 'test@test.com';
+        const mockPassword = 'password';
+        const mockHashedPassword = 'hashedPassword';
+        const mockNewUser = { email: mockEmail, password: mockHashedPassword };
+        const mockSavedUser = { ...mockNewUser, id: 1 };
+
+        (bcrypt.hash as jest.Mock).mockResolvedValue(mockHashedPassword);
+        (userRepository.findOneBy as jest.Mock).mockResolvedValue(null);
+        (userRepository.create as jest.Mock).mockReturnValue(mockSavedUser);
+
+        req.body = { email: mockEmail, password: mockPassword };
+
+        await userController.create(req as Request, res as Response);
+
+        expect(bcrypt.hash).toHaveBeenCalledWith(mockPassword, 10);
+        expect(userRepository.findOneBy).toHaveBeenCalledWith({ email: mockEmail });
+        expect(userRepository.create).toHaveBeenCalledWith({ email: mockEmail, password: mockHashedPassword });
+        expect(userRepository.save).toHaveBeenCalledWith(mockSavedUser);
+        expect(statusMock).toHaveBeenCalledWith(200);
+        expect(jsonMock).toHaveBeenCalledWith({ message: "Usuário cadastrado com sucesso", data: { email: mockEmail, id: 1 } });
+    });
+
+    
 });
