@@ -41,15 +41,7 @@ describe('ProductController', () => {
     });
 
     it('should throw an UnauthorizedError if product already exists', async () => {
-        const existingProduct = {
-            name: 'Test Products',
-            image: 'base64string',
-            description: 'Test description',
-            price: 10,
-            rate: 5,
-            category: 'Test category'
-        };
-    
+
         req.body = {
             name: 'Test Products',
             image: 'base64string',
@@ -58,14 +50,14 @@ describe('ProductController', () => {
             rate: 5,
             category: 'Test category'
         };
-    
-        productRepository.findOneBy = jest.fn().mockResolvedValueOnce(existingProduct);
-    
+
+        (productRepository.findOneBy as jest.Mock) = jest.fn().mockResolvedValue({ name: req.body.name });
+
         await expect(productController.create(req as Request, res as Response))
             .rejects
             .toThrow(new UnauthorizedError('Product already exists'));
     });
-    
+
     it('should throw a Base64Error if failed to save image', async () => {
         req.body = {
             name: 'Test Product',

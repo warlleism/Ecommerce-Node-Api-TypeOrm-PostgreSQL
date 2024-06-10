@@ -49,17 +49,15 @@ describe('UserController', () => {
     });
 
     it('should throw an UnauthorizedError if email already exists', async () => {
-        const mockEmail = 'test@test.com';
+        req.body = { email: 'Email', password: 'password' };
 
-        (userRepository.findOneBy as jest.Mock).mockResolvedValue({ email: mockEmail });
-
-        req.body = { email: mockEmail, password: 'password' };
+        (userRepository.findOneBy as jest.Mock).mockResolvedValue({ email: req.body.email });
 
         await expect(userController.create(req as Request, res as Response))
             .rejects
             .toThrow(new UnauthorizedError("E-mail já existe"));
 
-        expect(userRepository.findOneBy).toHaveBeenCalledWith({ email: mockEmail });
+        expect(userRepository.findOneBy).toHaveBeenCalledWith({ email: req.body.email });
     });
 
     it('should create a new user if valid email and password are provided', async () => {
@@ -85,5 +83,5 @@ describe('UserController', () => {
         expect(jsonMock).toHaveBeenCalledWith({ message: "Usuário cadastrado com sucesso", data: { email: mockEmail, id: 1 } });
     });
 
-    
+
 });
