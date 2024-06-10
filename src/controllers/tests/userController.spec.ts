@@ -1,4 +1,4 @@
-import { UserController } from "../userContoller";
+import { UserController } from "../userController";
 import { Request, Response } from "express";
 import { userRepository } from "../../repositories/userRepository";
 import { UnauthorizedError } from "../../helpers/api-erros";

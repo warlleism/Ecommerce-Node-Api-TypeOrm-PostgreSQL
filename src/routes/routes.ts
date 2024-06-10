@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { UserController } from "../controllers/userContoller";
+import { UserController } from "../controllers/userController";
 import { authMiddleware } from "../middlewares/authMiddleware";
-import { ProductController } from "../controllers/productContoller";
-import { FavoriteController } from "../controllers/favoriteContoller";
+import { ProductController } from "../controllers/productController";
+import { FavoriteController } from "../controllers/favoriteController";
 const routes = Router()
 
 routes.post('/user/register', new UserController().create)
