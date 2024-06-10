@@ -75,7 +75,7 @@ describe('ProductController', () => {
     it('should create a new product and return status 200 with product data', async () => {
         req.body = {
             name: 'Test Product',
-            image: 'data:image/base64string',
+            image: 'SGVsbG8sIHdvcmxkIQ==',
             description: 'Test description',
             price: 10,
             rate: 5,
