@@ -4,14 +4,12 @@ import { Request, Response } from "express";
 import { Base64Error, UnauthorizedError } from "../../helpers/api-erros";
 import { saveImageToFile } from "../../utils/fileUtils";
 import path from "path";
-import fs from 'fs';
-
 
 jest.mock('../../repositories/favoriteRepository');
 jest.mock('bcrypt');
 jest.mock('../../utils/fileUtils');
 
-describe('ProductController', () => {
+describe('Create - ProductController', () => {
     let productController: ProductController;
     let req: Partial<Request>;
     let res: Partial<Response>;

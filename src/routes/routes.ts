@@ -16,6 +16,7 @@ routes.put('/product/update', authMiddleware, new ProductController().update)
 routes.post('/product/search', authMiddleware, new ProductController().getSearch)
 
 routes.post('/favorite/create', authMiddleware, new FavoriteController().create)
+routes.post('/favorite/all', authMiddleware, new FavoriteController().get)
 
 
 export default routes;
